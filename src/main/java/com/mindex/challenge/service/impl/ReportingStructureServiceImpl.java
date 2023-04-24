@@ -36,7 +36,9 @@ public class ReportingStructureServiceImpl implements ReportingStructureService 
             if (result.getDirectReports() == null) {
                 theEmployee.getDirectReports().set(i, result);
             }
-            theEmployee.getDirectReports().set(i,buildEmployeeReportStructure(result));
+            else {
+                theEmployee.getDirectReports().set(i,buildEmployeeReportStructure(result));
+            }
         }
         return theEmployee;
     }
