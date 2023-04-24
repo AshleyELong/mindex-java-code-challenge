@@ -24,15 +24,23 @@ public class ReportingStructureServiceImpl implements ReportingStructureService 
 
         Employee theHeadEmployee = employeeRepository.findByEmployeeId(id);
         resultingReportingStructure.setEmployee(theHeadEmployee);
+        theHeadEmployee = buildEmployeeReportStructure(theHeadEmployee);
         resultingReportingStructure.setNumberOfReports(CalculateNumberOfReports(theHeadEmployee));
         return resultingReportingStructure;
     }
 
-    private int CalculateNumberOfReports(Employee theEmployee) {
-        if(theEmployee.getFirstName() == null) {
-            LOG.debug("Getting employee information for employee: [{}]", theEmployee.getEmployeeId());
-            theEmployee = employeeRepository.findByEmployeeId(theEmployee.getEmployeeId());
+    private Employee buildEmployeeReportStructure(Employee theEmployee) {
+        Employee result;
+        for (int i = 0; i < theEmployee.getDirectReports().size(); i++) {
+            result = employeeRepository.findByEmployeeId(theEmployee.getDirectReports().get(i).getEmployeeId());
+            if (result.getDirectReports() == null) {
+                theEmployee.getDirectReports().set(i, result);
+            }
+            theEmployee.getDirectReports().set(i,buildEmployeeReportStructure(result));
         }
+        return theEmployee;
+    }
+    private int CalculateNumberOfReports(Employee theEmployee) {
         if (theEmployee.getDirectReports() == null || theEmployee.getDirectReports().size() == 0) {
             LOG.debug("No direct reports for employee: [{} {}].", theEmployee.getFirstName(), theEmployee.getLastName());
             return 0;
